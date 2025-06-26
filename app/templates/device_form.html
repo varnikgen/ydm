@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if device %}Редактирование устройства{% else %}Добавление устройства{% endif %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>{% if device %}Редактирование устройства {{ device.mac_address }}{% else %}Добавление нового устройства{% endif %}</h1>
+    
+    <form method="post" action="{% if device %}/device-edit/{{ device.id }}{% else %}/device-add{% endif %}">
+        <div class="form-group">
+            <label for="mac_address">MAC-адрес:</label>
+            <input type="text" id="mac_address" name="mac_address" 
+                   value="{{ device.mac_address if device else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="ip_address">IP-адрес:</label>
+            <input type="text" id="ip_address" name="ip_address" 
+                   value="{{ device.ip_address if device else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Имя пользователя:</label>
+            <input type="text" id="username" name="username" 
+                   value="{{ device.username if device else 'admin' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" 
+                   value="{{ device.password if device else 'admin' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="model_id">Модель устройства:</label>
+            <select id="model_id" name="model_id">
+                <option value="" disabled selected>-- Выберите модель --</option>
+                {% for model in device_models %}
+                <option value="{{ model.id }}" 
+                        {% if device and device.model_id == model.id %}selected{% endif %}>
+                    {{ model.name }} ({{ model.firmware }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="config_id">Конфигурация:</label>
+            <select id="config_id" name="config_id">
+                <option value="" disabled selected>-- Выберите конфигурацию --</option>
+                {% for config in configs %}
+                <option value="{{ config.id }}" 
+                        {% if device and device.config_id == config.id %}selected{% endif %}>
+                    {{ config.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit">Сохранить</button>
+            <a href="{% if device %}/device-detail/{{ device.id }}{% else %}/devices-list{% endif %}">
+                <button type="button">Отмена</button>
+            </a>
+        </div>
+    </form>
+</body>
+</html>

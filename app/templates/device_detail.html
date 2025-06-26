@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Детали устройства {{ device.mac_address }}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Устройство {{ device.mac_address }}</h1>
+    
+    <div class="device-info">
+        <p><strong>MAC-адрес:</strong> {{ device.mac_address }}</p>
+        <p><strong>IP-адрес:</strong> {{ device.ip_address }}</p>
+        <p><strong>Модель:</strong> 
+            {% if device.model %}
+                {{ device.model.name }} ({{ device.model.firmware }})
+            {% else %}
+                Не указана
+            {% endif %}
+        </p>
+        <p><strong>Последний статус:</strong> {{ device.last_status|default('Нет данных', true) }}</p>
+    </div>
+    
+    <div class="actions">
+        <button onclick="history.back()">Назад</button>
+        <a href="/device-edit/{{ device.id }}"><button>Редактировать</button></a>
+        <button onclick="rebootDevice({{ device.id }})">Перезагрузить</button>
+        <button onclick="getStatus({{ device.id }})">Обновить статус</button>
+        <div class="form-inline">
+            <form method="post" action="/devices/{{ device.id }}/apply-config" style="display: inline-block;">
+                <select name="config_id" style="margin-right: 10px;">
+                    <option value="">-- Выберите конфигурацию --</option>
+                    {% for config in configs %}
+                    <option value="{{ config.id }}" {% if device.config_id == config.id %}selected{% endif %}>
+                        {{ config.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Применить конфигурацию</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function rebootDevice(deviceId) {
+            const response = await fetch(`/devices/${deviceId}/reboot`, {method: 'POST'});
+            const result = await response.json();
+            alert(result.success ? 'Устройство перезагружается' : 'Ошибка: ' + result.response);
+        }
+        
+        async function getStatus(deviceId) {
+            const response = await fetch(`/devices/${deviceId}/status`);
+            const result = await response.json();
+            
+            if (result.success) {
+                // Обновляем статус на странице
+                document.querySelector('.device-info p:last-child strong').nextSibling.textContent = 
+                    ' ' + result.response;
+                alert('Статус обновлен');
+            } else {
+                alert('Ошибка: ' + result.response);
+            }
+        }
+    </script>
+</body>
+</html>

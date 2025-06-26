@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Yealink Device Manager</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Yealink Device Manager</h1>
+    
+    <div class="dashboard">
+        <div class="dashboard-card">
+            <h2>Устройства</h2>
+            <div id="devices-count">Загрузка...</div>
+            <div class="actions">
+                <a href="/devices-list"><button>Список устройств</button></a>
+                <a href="/device-add"><button>Добавить устройство</button></a>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <h2>Модели устройств</h2>
+            <div id="models-count">Загрузка...</div>
+            <div class="actions">
+                <a href="/device-model-list"><button>Список моделей</button></a>
+                <a href="/device-model-add"><button>Добавить модель</button></a>
+            </div>
+        </div>
+        
+        <div class="dashboard-card">
+            <h2>Конфигурации</h2>
+            <div id="configs-count">Загрузка...</div>
+            <div class="actions">
+                <a href="/configs-list"><button>Список конфигураций</button></a>
+                <a href="/config-add"><button>Добавить конфигурацию</button></a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    async function loadCounts() {
+        console.log("Начало загрузки данных...");
+        
+        try {
+            // 1. Загрузка количества устройств
+            console.log("Отправка запроса на /devices/");
+            const devicesResponse = await fetch('/devices/');
+            console.log("Ответ получен. Статус:", devicesResponse.status);
+            
+            if (!devicesResponse.ok) {
+                console.error("Ошибка при запросе устройств:", devicesResponse.status, devicesResponse.statusText);
+                document.getElementById('devices-count').textContent = 'Ошибка загрузки';
+            } else {
+                const devices = await devicesResponse.json();
+                console.log("Устройства получены:", devices);
+                document.getElementById('devices-count').textContent = `Всего: ${devices.length}`;
+            }
+            
+            // 2. Загрузка количества моделей
+            console.log("Отправка запроса на /device-models");
+            const modelsResponse = await fetch('/device-models');
+            console.log("Ответ получен. Статус:", modelsResponse.status);
+            
+            if (!modelsResponse.ok) {
+                console.error("Ошибка при запросе моделей:", modelsResponse.status, modelsResponse.statusText);
+                document.getElementById('models-count').textContent = 'Ошибка загрузки';
+            } else {
+                const models = await modelsResponse.json();
+                console.log("Модели получены:", models);
+                document.getElementById('models-count').textContent = `Всего: ${models.length}`;
+            }
+            
+            // 3. Загрузка количества конфигураций
+            console.log("Отправка запроса на /configs/");
+            const configsResponse = await fetch('/configs/');
+            console.log("Ответ получен. Статус:", configsResponse.status);
+            
+            if (!configsResponse.ok) {
+                console.error("Ошибка при запросе конфигураций:", configsResponse.status, configsResponse.statusText);
+                document.getElementById('configs-count').textContent = 'Ошибка загрузки';
+            } else {
+                const configs = await configsResponse.json();
+                console.log("Конфигурации получены:", configs);
+                document.getElementById('configs-count').textContent = `Всего: ${configs.length}`;
+            }
+            
+        } catch (error) {
+            console.error('Критическая ошибка загрузки данных:', error);
+            document.getElementById('devices-count').textContent = 'Ошибка загрузки';
+            document.getElementById('models-count').textContent = 'Ошибка загрузки';
+            document.getElementById('configs-count').textContent = 'Ошибка загрузки';
+        }
+        
+        console.log("Завершение загрузки данных");
+    }
+
+    // Загружаем данные при старте
+    loadCounts();
+    </script>
+</body>
+</html>

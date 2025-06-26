@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if config %}Редактирование конфигурации{% else %}Добавление конфигурации{% endif %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        textarea {
+            width: 100%;
+            height: 400px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>{% if config %}Редактирование конфигурации {{ config.name }}{% else %}Добавление новой конфигурации{% endif %}</h1>
+    
+    <form method="post" action="{% if config %}/config-edit/{{ config.id }}{% else %}/config-add{% endif %}">
+        <div class="form-group">
+            <label for="name">Название конфигурации:</label>
+            <input type="text" id="name" name="name" 
+                   value="{{ config.name if config else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="content">XML конфигурация:</label>
+            <textarea id="content" name="content" required>{{ config.content if config else '' }}</textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit">Сохранить</button>
+            <a href="/configs-list">
+                <button type="button">Отмена</button>
+            </a>
+        </div>
+    </form>
+</body>
+</html>

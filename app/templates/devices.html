@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Управление устройствами</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>Управление устройствами Yealink</h1>
+    
+    <div class="actions">
+        <a href="/device-add"><button>Добавить устройство</button></a>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>MAC-адрес</th>
+                <th>IP-адрес</th>
+                <th>Модель</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for device in devices %}
+            <tr>
+                <td>{{ device.mac_address }}</td>
+                <td>{{ device.ip_address }}</td>
+                <td>
+                    {% if device.model %}
+                        {{ device.model.name }} ({{ device.model.firmware }})
+                    {% else %}
+                        Не указана
+                    {% endif %}
+                </td>
+                <td class="actions">
+                    <a href="/device-detail/{{ device.id }}"><button>Просмотр</button></a>
+                    <a href="/device-edit/{{ device.id }}"><button>Редактировать</button></a>
+                    <button onclick="rebootDevice({{ device.id }})">Перезагрузить</button>
+                    <button onclick="getStatus({{ device.id }})">Статус</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        async function rebootDevice(deviceId) {
+            const response = await fetch(`/devices/${deviceId}/reboot`, {method: 'POST'});
+            const result = await response.json();
+            alert(result.success ? 'Устройство перезагружается' : 'Ошибка: ' + result.response);
+        }
+        
+        async function getStatus(deviceId) {
+            const response = await fetch(`/devices/${deviceId}/status`);
+            const result = await response.json();
+            alert(result.success ? 'Статус получен: ' + result.response : 'Ошибка: ' + result.response);
+        }
+    </script>
+</body>
+</html>

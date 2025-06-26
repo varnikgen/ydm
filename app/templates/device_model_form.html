@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if device_model %}Редактирование модели{% else %}Добавление модели{% endif %}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <h1>{% if device_model %}Редактирование модели {{ device_model.name }}{% else %}Добавление новой модели{% endif %}</h1>
+    
+    <form method="post" action="{% if device_model %}/device-model-edit/{{ device_model.id }}{% else %}/device-model-add{% endif %}">
+        <div class="form-group">
+            <label for="name">Название модели:</label>
+            <input type="text" id="name" name="name" 
+                   value="{{ device_model.name if device_model else '' }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="firmware">Версия прошивки:</label>
+            <input type="text" id="firmware" name="firmware" 
+                   value="{{ device_model.firmware if device_model else '' }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="image">URL изображения:</label>
+            <input type="text" id="image" name="image" 
+                   value="{{ device_model.image if device_model else '' }}">
+            {% if device_model and device_model.image %}
+            <div style="margin-top: 10px;">
+                <img src="{{ device_model.image }}" alt="{{ device_model.name }}" style="max-width: 200px;">
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit">Сохранить</button>
+            <a href="/device-models">
+                <button type="button">Отмена</button>
+            </a>
+        </div>
+    </form>
+</body>
+</html>
