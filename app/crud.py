@@ -98,6 +98,9 @@ def create_config(db: Session, config: schemas.ConfigCreate):
 def get_configs(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Config).offset(skip).limit(limit).all()
 
+def get_config(db: Session, config_id: int):
+    return db.query(models.Config).filter(models.Config.id == config_id).first()
+
 def update_config(db: Session, config_id: int, config_data: schemas.ConfigBase):
     db_config = db.query(models.Config).filter(models.Config.id == config_id).first()
     if not db_config:

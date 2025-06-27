@@ -351,7 +351,7 @@ def create_config_endpoint(config: schemas.ConfigCreate, db: Session = Depends(g
 
 @app.get("/configs/{config_id}", response_model=schemas.Config)
 def read_config(config_id: int, db: Session = Depends(get_db)):
-    db_config = crud.get_config(db, config_id)
+    db_config = crud.get_configs(db, config_id)
     if db_config is None:
         raise HTTPException(status_code=404, detail="Config not found")
     return db_config
@@ -360,7 +360,7 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
-@app.get("/config-list", response_class=HTMLResponse)
+@app.get("/configs-list", response_class=HTMLResponse)
 async def configs_list(request: Request, db: Session = Depends(get_db)):
     configs = crud.get_configs(db)
     return templates.TemplateResponse(
@@ -386,8 +386,25 @@ async def add_config_submit(request: Request, db: Session = Depends(get_db)):
     config = crud.create_config(db, config_data)
     return RedirectResponse(url="/configs-list", status_code=303)
 
+# Просмотр деталей конфигурации
+@app.get("/config-detail/{config_id}", response_class=HTMLResponse)
+async def config_detail(
+    request: Request, 
+    config_id: int, 
+    db: Session = Depends(get_db)
+):
+    config = crud.get_config(db, config_id)
+    if not config:
+        raise HTTPException(status_code=404, detail="Config not found")
+    
+    return templates.TemplateResponse(
+        "config_detail.html",
+        {"request": request, "config": config}
+    )
+
+# Форма редактирования конфигурации
 @app.get("/config-edit/{config_id}", response_class=HTMLResponse)
-async def edit_config_from(request: Request, config_id: int, db: Session = Depends(get_db)):
+async def edit_config_form(request: Request, config_id: int, db: Session = Depends(get_db)):
     config = crud.get_config(db, config_id)
     if not config:
         raise HTTPException(status_code=404, detail="Config not found")

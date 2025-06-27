@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Детали конфигурации {{ config.name }}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <style>
+        .config-content {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Конфигурация: {{ config.name }}</h1>
+    
+    <div class="config-info">
+        <p><strong>ID:</strong> {{ config.id }}</p>
+        <p><strong>Создана:</strong> {{ config.created_at.strftime('%d.%m.%Y %H:%M') }}</p>
+        <p><strong>Обновлена:</strong> {{ config.updated_at.strftime('%d.%m.%Y %H:%M') }}</p>
+    </div>
+    
+    <div class="config-content">
+        {{ config.content }}
+    </div>
+    
+    <div class="actions">
+        <a href="/config-edit/{{ config.id }}"><button>Редактировать</button></a>
+        <a href="/configs-list"><button>Назад к списку</button></a>
+    </div>
+</body>
+</html>
