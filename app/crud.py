@@ -40,7 +40,18 @@ def delete_device_model(db: Session, model_id: int):
 
 # По работе с устройствами
 def create_device(db: Session, device: schemas.DeviceCreate):
-    db_device = models.Device(**device.model_dump(exclude={"config_id", "model_id"}))
+
+    # Создаём словарь данных, исключая необязательные поля
+    device_data = device.model_dump(exclude_unset=True)
+
+    # Удаляем config_id и model_id, если они None
+    for field in ["config_id", "model_id"]:
+        if field in device_data and device_data[field] is None:
+            del device_data[field]
+
+    # Создаём объект устройства
+    db_device = models.Device(**device_data)
+    
     db.add(db_device)
     db.commit()
     db.refresh(db_device)

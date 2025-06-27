@@ -202,25 +202,33 @@ async def add_device_form(request: Request, db: Session = Depends(get_db)):
         }
     )
 
-@app.post("/device-add", response_class=HTMLResponse)
+@app.post("/device-add", response_class=RedirectResponse)
 async def add_device_submit(request: Request, db: Session = Depends(get_db)):
     form_data = await request.form()
+    logger.info(f"Form data: {dict(form_data)}")
     
-    # Обработка пустых значений для model_id и config_id
-    model_id = form_data.get("model_id")
-    config_id = form_data.get("config_id")
-    
-    device_data = schemas.DeviceCreate(
-        mac_address=form_data.get("mac_address"),
-        ip_address=form_data.get("ip_address"),
-        username=form_data.get("username", "admin"),
-        password=form_data.get("password", "admin"),
-        model_id=int(model_id) if model_id else None,
-        config_id=int(config_id) if config_id else None
-    )
-    
-    #device = crud.create_device(db, device_data)
-    return RedirectResponse(url="/devices-list", status_code=303)
+    try:
+        # Обработка пустых значений
+        model_id = form_data.get("model_id")
+        config_id = form_data.get("config_id")
+        
+        device_data = schemas.DeviceCreate(
+            mac_address=form_data.get("mac_address"),
+            ip_address=form_data.get("ip_address"),
+            username=form_data.get("username", "admin"),
+            password=form_data.get("password", "admin"),
+            model_id=int(model_id) if model_id else None,
+            config_id=int(config_id) if config_id else None
+        )
+        
+        logger.info(f"Device data: {device_data}")
+        device = crud.create_device(db, device_data)
+        logger.info(f"Device created: ID={device.id}, MAC={device.mac_address}")
+        return RedirectResponse(url="/devices-list", status_code=303)
+    except Exception as e:
+        logger.error(f"Error creating device: {str(e)}")
+        # Вернем на форму с сообщением об ошибке
+        return RedirectResponse(url="/device-add?error=1", status_code=303)
 
 @app.get("/device-edit/{device_id}", response_class=HTMLResponse)
 async def edit_device_form(request: Request, device_id: int, db: Session = Depends(get_db)):
